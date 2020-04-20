@@ -18,8 +18,9 @@ contract Voting_smart_contract {
     uint public voter_count;
 
     constructor() public {
-        addCandidateToBallot("Joe Biden");
-        addCandidateToBallot("Donald Trump");
+        voter_count = 1;
+        addCandidateToBallot("Biden");
+        addCandidateToBallot("Trump");
         addEligibleVoter();
         addEligibleVoter();
     }
@@ -36,11 +37,20 @@ contract Voting_smart_contract {
         voter_count++;
     }
 
-    function vote(uint voter_id, string memory candidate_id) public
+    function vote(uint voter_id, string memory candidate_name) public
     {
-      require(voter_id <= voter_count);
-      require(voters[voter_id].voted == 0);
+      require(voter_id < voter_count && voter_id > 0, "Not a valid voter ID.");
+      require(voters[voter_id].voted == 0, "Voter has already voted.");
       voters[voter_id].voted = 1;
-      candidates[0].vote_count++;
+      bool candidate_found = false;
+      for(uint index = 0; index < candidate_count; index++)
+      {
+        if(keccak256(abi.encodePacked(candidates[index].candidate_name)) == keccak256(abi.encodePacked(candidate_name)))
+        {
+          candidates[index].vote_count++;
+          candidate_found = true;
+        }
+      }
+      require(candidate_found == true, "Not a valid candidate.");
     }
 }
